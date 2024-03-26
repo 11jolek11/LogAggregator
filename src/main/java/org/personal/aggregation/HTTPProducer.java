@@ -3,6 +3,8 @@ package org.personal.aggregation;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.personal.utils.LogEntry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -11,6 +13,7 @@ import java.util.Optional;
 import java.util.concurrent.TransferQueue;
 
 public class HTTPProducer extends Producer implements HttpHandler{
+    private final Logger LOGGER = LoggerFactory.getLogger(HTTPProducer.class);
     public HTTPProducer(TransferQueue<LogEntry> queue, String name, Deserializer deserializer) {
         super(queue, name, deserializer);
     }
@@ -26,6 +29,7 @@ public class HTTPProducer extends Producer implements HttpHandler{
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
+        this.LOGGER.info("{}: new HTTP request", this.getName());
         String response = "";
 
         String serializedString = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
@@ -42,6 +46,7 @@ public class HTTPProducer extends Producer implements HttpHandler{
             }
 
         } catch (InterruptedException e) {
+            this.LOGGER.error("{}: interrupted", this.getName());
             throw new RuntimeException(e);
         }
     }
