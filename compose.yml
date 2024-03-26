@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:16.2-alpine3.19
+    restart: always
+    env_file:
+      - .env
+    networks:
+      - main
+      - elastic
+  elasticsearch:
+    image: elasticsearch:8.12.2
+    environment:
+      - discovery.type=single-node
+    env_file:
+      - .env
+    networks:
+      - elastic
+  mqtt:
+    image: emqx/nanomq:0.21.8
+    networks:
+      - main
+
+networks:
+  elastic:
+    driver: bridge
+  main:
+    driver: bridge
