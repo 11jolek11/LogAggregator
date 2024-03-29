@@ -43,7 +43,7 @@ public class MQTTProducer extends Producer implements MqttCallback{
     }
 
     @Override
-    public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
+    public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
         byte[] payload = mqttMessage.getPayload();
         String serializedMessage = new String(payload, StandardCharsets.UTF_8);
         try {
