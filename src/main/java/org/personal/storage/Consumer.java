@@ -7,7 +7,7 @@ import org.personal.utils.LogEntry;
 import java.util.concurrent.TransferQueue;
 
 // TODO(11jolek11): Refactor!!!
-public abstract class Consumer {
+public abstract class Consumer implements Runnable{
     private final TransferQueue<LogEntry> queue;
     protected Middleware middleware;
     private final String name;
