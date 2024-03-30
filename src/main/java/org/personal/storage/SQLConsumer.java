@@ -16,7 +16,7 @@ public class SQLConsumer extends Consumer {
 
     private final Connection connection;
 
-    protected SQLConsumer(TransferQueue<LogEntry> queue, Middleware middleware, String name, String storeStatement, Connection connection) {
+    public SQLConsumer(TransferQueue<LogEntry> queue, Middleware middleware, String name, String storeStatement, Connection connection) {
         super(queue, middleware, name);
         this.connection = connection;
         this.preparedStatement.put("storeStatement", storeStatement);
@@ -72,6 +72,14 @@ public class SQLConsumer extends Consumer {
             pstm.setString(3, logEntry.message());
         } catch (SQLException e) {
             System.out.println("SQL Error: \n" + e.getMessage());
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    @Override
+    public void run() {
+        while (true) {
+            this.consume();
         }
     }
 }
