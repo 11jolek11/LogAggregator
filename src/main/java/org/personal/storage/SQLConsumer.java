@@ -72,6 +72,14 @@ public class SQLConsumer extends Consumer {
             pstm.setString(3, logEntry.message());
         } catch (SQLException e) {
             System.out.println("SQL Error: \n" + e.getMessage());
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    @Override
+    public void run() {
+        while (true) {
+            this.consume();
         }
     }
 }
