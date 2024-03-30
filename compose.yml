@@ -2,6 +2,10 @@ services:
   db:
     image: postgres:16.2-alpine3.19
     restart: always
+    ports:
+      - "5432:5432"
+    expose:
+      - "5432"
     env_file:
       - .env
     networks:
@@ -17,6 +21,10 @@ services:
       - elastic
   mqtt:
     image: emqx/nanomq:0.21.8
+    ports:
+      - "1883:1883"
+    expose:
+      - "1883"
     networks:
       - main
 
