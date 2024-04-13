@@ -16,7 +16,7 @@ public class SQLConsumer extends Consumer {
 
     private final Connection connection;
 
-    protected SQLConsumer(TransferQueue<LogEntry> queue, Middleware middleware, String name, String storeStatement, Connection connection) {
+    public SQLConsumer(TransferQueue<LogEntry> queue, Middleware middleware, String name, String storeStatement, Connection connection) {
         super(queue, middleware, name);
         this.connection = connection;
         this.preparedStatement.put("storeStatement", storeStatement);
