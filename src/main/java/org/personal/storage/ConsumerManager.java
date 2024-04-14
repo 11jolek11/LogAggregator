@@ -43,13 +43,17 @@ public class ConsumerManager<T extends Consumer> {
     }
 
     public void startAllConsumers() {
+        this.consumersTrack.clear();
         for (T consumer : availableConsumers.values()) {
             this.consumersTrack.put(consumer.getName(), threadPool.submit(consumer));
         }
+
+        this.LOGGER.info("Consumer started: {}", this.consumersTrack.values().toString());
     }
 
     public void shutdown(String consumerName) {
         this.consumersTrack.remove(consumerName).cancel(true);
+        this.LOGGER.info("Consumer closed: {}", consumerName);
     }
 
     public void start(String consumerName) {
@@ -59,18 +63,22 @@ public class ConsumerManager<T extends Consumer> {
         }
         if (!consumersTrack.containsKey(consumerName)) {
             this.consumersTrack.put(consumer.getName(), threadPool.submit(consumer));
+            this.LOGGER.info("Consumer started: {}", consumerName);
         } else {
-            System.out.println("Consumer " + consumerName + " is already running");
+            this.LOGGER.info("Consumer {} is already running", consumerName);
         }
     }
 
     public void shutdownAllConsumers() {
         this.threadPool.shutdown();
+        Set<String> tempConsumers = this.consumersTrack.keySet();
         this.consumersTrack.clear();
+        this.LOGGER.info("Consumer closed: {}", tempConsumers.toString());
     }
 
     public void addConsumer(T newConsumer) {
         this.availableConsumers.put(newConsumer.getName(), newConsumer);
+        this.LOGGER.info("Consumer added: {}", newConsumer.toString());
     }
 
     public Set<String> getAvailableConsumers() {
