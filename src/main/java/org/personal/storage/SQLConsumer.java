@@ -2,6 +2,8 @@ package org.personal.storage;
 
 import org.personal.storage.middleware.Middleware;
 import org.personal.utils.LogEntry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,15 +13,23 @@ import java.util.concurrent.TransferQueue;
 
 public class SQLConsumer extends Consumer {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SQLConsumer.class);
     private HashMap<String, String> preparedStatement = new HashMap<>();
     private HashMap<String, String> callableStatement = new HashMap<>();
 
     private final Connection connection;
 
-    public SQLConsumer(TransferQueue<LogEntry> queue, Middleware middleware, String name, String storeStatement, Connection connection) {
-        super(queue, middleware, name);
+    public SQLConsumer(TransferQueue<LogEntry> queue, Middleware middleware, String storeStatement, Connection connection) {
+        super(queue, middleware);
         this.connection = connection;
         this.preparedStatement.put("storeStatement", storeStatement);
+    }
+
+    private SQLConsumer(SQLConsumer sqlConsumer) {
+        super(sqlConsumer);
+        this.connection = sqlConsumer.connection;
+        this.preparedStatement = sqlConsumer.preparedStatement;
+        this.callableStatement = sqlConsumer.callableStatement;
     }
 
 //    public void <T> T executePreparedStatement(String preparedStatementName,) throws SQLException {
@@ -71,7 +81,7 @@ public class SQLConsumer extends Consumer {
             pstm.setString(2, String.valueOf(logEntry.dateTime()));
             pstm.setString(3, logEntry.message());
         } catch (SQLException e) {
-            System.out.println("SQL Error: \n" + e.getMessage());
+            LOGGER.error("SQL Error: {}", e.getMessage());
             Thread.currentThread().interrupt();
         }
     }
@@ -81,5 +91,10 @@ public class SQLConsumer extends Consumer {
         while (true) {
             this.consume();
         }
+    }
+
+    @Override
+    public Consumer clone() {
+        return new SQLConsumer(this);
     }
 }
