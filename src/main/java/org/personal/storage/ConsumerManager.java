@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 public class ConsumerManager<T extends Consumer> {
-
+    // TODO(11jolek11): Refactor!
     private final TransferQueue<LogEntry> targetQueue;
     private Map<String, T> availableConsumers;
     private final int maxPoolSize;
@@ -48,7 +48,7 @@ public class ConsumerManager<T extends Consumer> {
             this.consumersTrack.put(consumer.getName(), threadPool.submit(consumer));
         }
 
-        this.LOGGER.info("Consumer started: {}", this.consumersTrack.values().toString());
+        this.LOGGER.info("Consumer started: {}", this.consumersTrack.values());
     }
 
     public void shutdown(String consumerName) {
@@ -73,12 +73,21 @@ public class ConsumerManager<T extends Consumer> {
         this.threadPool.shutdown();
         Set<String> tempConsumers = this.consumersTrack.keySet();
         this.consumersTrack.clear();
-        this.LOGGER.info("Consumer closed: {}", tempConsumers.toString());
+        this.LOGGER.info("Consumer closed: {}", tempConsumers);
     }
 
     public void addConsumer(T newConsumer) {
         this.availableConsumers.put(newConsumer.getName(), newConsumer);
-        this.LOGGER.info("Consumer added: {}", newConsumer.toString());
+        this.LOGGER.info("Consumer added: {}", newConsumer);
+    }
+
+    public void cloneConsumer(String consumerName) throws IllegalArgumentException{
+        if (!this.availableConsumers.containsKey(consumerName)) {
+            throw new IllegalArgumentException("Can't copy not registered consumer: " + consumerName);
+        } else {
+            T consumerClone = (T) this.availableConsumers.get(consumerName).clone();
+            this.addConsumer(consumerClone);
+        }
     }
 
     public Set<String> getAvailableConsumers() {
