@@ -1,25 +1,33 @@
 package org.personal.storage;
 
+import org.apache.commons.text.RandomStringGenerator;
 import org.personal.storage.middleware.EmptyProcessor;
 import org.personal.storage.middleware.Middleware;
 import org.personal.utils.LogEntry;
+import org.personal.utils.Prototype;
 
 import java.util.concurrent.TransferQueue;
 
 // TODO(11jolek11): Refactor!!!
-public abstract class Consumer implements Runnable{
+public abstract class Consumer implements Runnable, Prototype {
     private final TransferQueue<LogEntry> queue;
     protected Middleware middleware;
     private final String name;
 
-    protected Consumer(TransferQueue<LogEntry> queue, Middleware middleware, String name) {
+    protected Consumer(TransferQueue<LogEntry> queue, Middleware middleware) {
         this.queue = queue;
         this.middleware = middleware;
-        this.name = name;
+        int nameLength = 4;
+        RandomStringGenerator randomStringGenerator = new RandomStringGenerator.Builder().withinRange('a', 'z').build();
+        this.name = randomStringGenerator.generate(nameLength);
     }
 
-    protected Consumer(TransferQueue<LogEntry> queue, String name) {
-        this(queue, new Middleware(EmptyProcessor.createEmptyProcessor()), name);
+    protected Consumer(TransferQueue<LogEntry> queue) {
+        this(queue, new Middleware(EmptyProcessor.createEmptyProcessor()));
+    }
+
+    protected Consumer(Consumer consumer) {
+        this(consumer.queue, consumer.middleware);
     }
 
     public void setMiddleware(Middleware middleware) {
